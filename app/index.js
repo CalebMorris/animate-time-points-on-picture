@@ -79,7 +79,7 @@ function addPointInputRow() {
         startingPointPosition = currentPoint
         drawPoint(ctx, currentPoint)
         console.log('startingPointPosition', startingPointPosition)
-        document.getElementById('canvas-container').style.display = null
+        renderAllPointsToCanvase(ctx)
     });
     $removeRowButton.addEventListener('click', (event) => {
         $removeRowButton.parentElement.remove();
@@ -90,12 +90,21 @@ function clearToBaseImage(ctx) {
     ctx.drawImage(baseImage, 0, 0);
 }
 
-function drawPoint(ctx, position) {
-    clearToBaseImage(ctx)
+function drawPoint(ctx, position, withoutClear) {
+    if (!withoutClear) { clearToBaseImage(ctx) }
     ctx.fillStyle = "rgb(0,0,200,0.5)";
     ctx.beginPath();
     ctx.arc(position[0], position[1], 10, 0, 2 * Math.PI);
     ctx.fill();
+}
+
+function renderAllPointsToCanvase(ctx) {
+    document.getElementById('canvas-container').style.display = null
+    const pointsToRender = getPoints()
+    clearToBaseImage(ctx)
+    pointsToRender.forEach(point => {
+        drawPoint(ctx, point, true);
+    });
 }
 
 function render(canvas, ctx) {
@@ -170,7 +179,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
     addEventListener("mouseup", (event) => {
         if (isControlling) {
             event.preventDefault();
-            clearToBaseImage(ctx);
             $control = undefined
             isControlling = false;
             startingMousePosition = undefined;
@@ -185,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
             $control.parentElement.getElementsByClassName('point-pos-x')[0].value = newPointPosition[0]
             $control.parentElement.getElementsByClassName('point-pos-y')[0].value = newPointPosition[1]
-            drawPoint(ctx, newPointPosition)
+            renderAllPointsToCanvase(ctx)
         }
     });
 });
