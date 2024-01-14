@@ -1,6 +1,11 @@
 const blobURLSupport = ((ref2 = window.URL) != null ? ref2.createObjectURL : void 0) != null;
 
 var baseImage
+var isControlling = false
+var $control
+var startingMousePosition
+var startingPointPosition
+var ctx
 
 function importImageToCanvas(canvas, ctx, e) {
     var reader = new FileReader();
@@ -24,17 +29,69 @@ function enableInputPoints() {
     document.getElementById('render-gif-button').style.display = null
 }
 
+function createPointInput(xOrY) {
+    const $pointInput = document.createElement('input')
+    $pointInput.type = 'number'
+    $pointInput.className = `point-pos-${xOrY}`
+    $pointInput.placeholder = '0'
+    return $pointInput
+}
+
+function createLabel(message) {
+    const $label = document.createElement('label')
+    $label.innerText = message
+    return $label
+}
+
 function addPointInputRow() {
+    const $previewControl = document.createElement("i");
+    $previewControl.className = 'fa-solid fa-bullseye point-preview-control'
+    $previewControl.style.cursor = 'grab'
+
+    const $removeRowButton = document.createElement('button')
+    $removeRowButton.className = 'remove-row-button'
+    $removeRowButton.innerHTML = '<i class="fa-solid fa-x"></i>'
+
+    const inputs = [
+        createLabel('Position X'),
+        createPointInput('x'),
+        createLabel('Position Y'),
+        createPointInput('y'),
+    ]
+
     const newRow = document.createElement("div");
     newRow.className = 'graph-display-point'
-    newRow.innerHTML = '<label>Position X</label><input type="number" class="point-pos-x" placeholder="0"></input><label>Position Y</label><input type="number" class="point-pos-y" placeholder="0"></input>'
+    newRow.append(
+        $previewControl,
+        ...inputs,
+        $removeRowButton,
+    )
     document
         .getElementById('point-inputs')
         .append(newRow)
+
+    $previewControl.addEventListener("mousedown", (event) => {
+        event.preventDefault();
+        const currentPoint = getPoint(newRow)
+        isControlling = true;
+        $control = $previewControl;
+        startingMousePosition = [event.clientX, event.clientY]
+        startingPointPosition = currentPoint
+        drawPoint(ctx, currentPoint)
+        console.log('startingPointPosition', startingPointPosition)
+        document.getElementById('canvas-container').style.display = null
+    });
+    $removeRowButton.addEventListener('click', (event) => {
+        $removeRowButton.parentElement.remove();
+    })
+}
+
+function clearToBaseImage(ctx) {
+    ctx.drawImage(baseImage, 0, 0);
 }
 
 function drawPoint(ctx, position) {
-    ctx.drawImage(baseImage, 0, 0);
+    clearToBaseImage(ctx)
     ctx.fillStyle = "rgb(0,0,200,0.5)";
     ctx.beginPath();
     ctx.arc(position[0], position[1], 10, 0, 2 * Math.PI);
@@ -98,7 +155,7 @@ function getPoint($pointRow) {
 
 document.addEventListener("DOMContentLoaded", function (event) {
     const canvas = document.getElementById("bitmap");
-    const ctx = canvas.getContext("2d");
+    ctx = canvas.getContext("2d");
 
     const $imageLoader = document.getElementById('imageLoader');
     $imageLoader.addEventListener('change', importImageToCanvas.bind(null, canvas, ctx), false);
@@ -108,4 +165,27 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     const $addPointButton = document.getElementById('add-another-point-button')
     $addPointButton.addEventListener('click', addPointInputRow)
+
+    // Preview Controll Setup
+    addEventListener("mouseup", (event) => {
+        if (isControlling) {
+            event.preventDefault();
+            clearToBaseImage(ctx);
+            $control = undefined
+            isControlling = false;
+            startingMousePosition = undefined;
+            startingPointPosition = undefined;
+        }
+    });
+    addEventListener("mousemove", (event) => {
+        if (isControlling) {
+            event.preventDefault();
+            const offset = [startingMousePosition[0] - event.clientX, startingMousePosition[1] - event.clientY]
+            const newPointPosition = [startingPointPosition[0] - offset[0], startingPointPosition[1] - offset[1]]
+
+            $control.parentElement.getElementsByClassName('point-pos-x')[0].value = newPointPosition[0]
+            $control.parentElement.getElementsByClassName('point-pos-y')[0].value = newPointPosition[1]
+            drawPoint(ctx, newPointPosition)
+        }
+    });
 });
