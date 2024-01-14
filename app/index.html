@@ -1,11 +1,26 @@
 <html>
   <head>
     <script type="text/javascript" src="./gif.js"></script>
-    <!-- <script type="text/javascript" src="./gif.worker.js"></script> -->
     <script type="text/javascript" src="./index.js"></script>
   </head>
   <body>
-    <canvas id="bitmap" width="400" height="400"></canvas>
-    <img class="render" width="400" height="400"></img>
+    <div id="inputs" style="float: right;"> 
+        <label>Image File:</label><br/>
+        <input type="file" id="imageLoader" name="imageLoader"/>
+        <div id="point-inputs" style="display: none;">
+            <button id="add-another-point-button">+</button>
+        </div>
+        <button id="render-gif-button" style="display: none;">Render GIF</button>
+    </div>
+    <div id="outputs">
+        <div id="canvas-container" style="display: none;">
+            <label for="bitmap">Base Image</label>
+            <canvas id="bitmap"></canvas>
+        </div>
+        <div id="render-image-container" style="display: none;">
+            <label for="render">Output Image</label>
+            <img id="render"></img>
+        </div>
+    </div>  
   </body>
 </html>

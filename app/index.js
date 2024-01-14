@@ -1,63 +1,94 @@
 const blobURLSupport = ((ref2 = window.URL) != null ? ref2.createObjectURL : void 0) != null;
 
-function drawRedSquare(context) {
-    // context.fillStyle = "rgb(255,255,255)";
-    // context.fillRect(0, 0, canvas.width, canvas.height); //GIF can't do transparent so do white
-    // context.fillRect(0, 0, 400, 400); //GIF can't do transparent so do white
-
-    context.fillStyle = "rgb(200,0,0)";
-    context.fillRect(10, 10, 75, 50); //draw a little red box
+function importImageToCanvas(canvas, ctx, e) {
+    var reader = new FileReader();
+    reader.onload = function (event) {
+        var img = new Image();
+        img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+        }
+        img.src = event.target.result;
+        document.getElementById('canvas-container').style.display = null
+        enableInputPoints();
+    }
+    reader.readAsDataURL(e.target.files[0]);
 }
 
-function drawBlueCircle(context) {
-    // context.fillStyle = "rgb(255,255,255)";
-    // context.fillRect(0, 0, 400, 400); //GIF can't do transparent so do white
+function enableInputPoints() {
+    addPointInputRow();
+    document.getElementById('point-inputs').style.display = null
+    document.getElementById('render-gif-button').style.display = null
+}   
 
-    context.fillStyle = "rgb(0,200,0)";
-    // context.fillRect(10, 10, 75, 50); //draw a little red box
-    context.beginPath();
-    context.arc(100, 75, 50, 0, 2 * Math.PI);
-    context.fillStyle = "blue";
-    context.fill();
+function addPointInputRow() {
+    const newRow = document.createElement("div");
+    newRow.className = 'graph-display-point'
+    newRow.innerHTML = '<label>Position X</label><input type="number" class="point-pos-x"></input><label>Position Y</label><input type="number" class="point-pos-y"></input>'
+    document
+        .getElementById('point-inputs')
+        .append(newRow)
 }
 
-function main(context) {
-    console.log('rendering')
-    var $renderimg = document.body.querySelectorAll('img.render')[0];
+function drawRedSquare(ctx) {
+    ctx.fillStyle = "rgb(200,0,0)";
+    ctx.fillRect(10, 10, 75, 50); //draw a little red box
+}
+
+function drawBlueCircle(ctx) {
+    ctx.fillStyle = "rgb(0,200,0)";
+    ctx.beginPath();
+    ctx.arc(100, 75, 50, 0, 2 * Math.PI);
+    ctx.fillStyle = "blue";
+    ctx.fill();
+}
+
+function render(canvas, ctx) {
+    var $renderimg = document.getElementById('render')
+    $renderimg.width = canvas.width
+    $renderimg.height = canvas.height
     var gif = new GIF({
         workers: 2,
         quality: 10,
-        width: 400,
-        height: 400,
+        width: canvas.width,
+        height: canvas.height,
         background: '#ffffff',
     });
 
-    // add a image element
-    //   gif.addFrame(imageElement);
+    gif.addFrame(ctx, { copy: true });
 
-    // or a canvas element
-    //   gif.addFrame(canvasElement, { delay: 200 });
+    drawRedSquare(ctx);
+    gif.addFrame(ctx, { copy: true });
 
-    // or copy the pixels from a canvas context
-    //   gif.addFrame(ctx, { copy: true });
-    drawRedSquare(context);
-    gif.addFrame(context, {copy: true});
-
-    drawBlueCircle(context);
-    gif.addFrame(context, { copy:true, delay: 200 });
+    drawBlueCircle(ctx);
+    gif.addFrame(ctx, { copy: true, delay: 200 });
 
     gif.on("finished", function (blob) {
+        document.getElementById('canvas-container').style.display = 'none'
         $renderimg.src = URL.createObjectURL(blob);
     });
 
     gif.render();
+
+    const $imageRenderContainer = document.getElementById('render-image-container');
+    unhideRender($imageRenderContainer)
+}
+
+function unhideRender($imageRenderContainer) {
+    $imageRenderContainer.style.display = null
 }
 
 document.addEventListener("DOMContentLoaded", function (event) {
-    var canvas = document.getElementById("bitmap");
-    var context = canvas.getContext("2d");
+    const canvas = document.getElementById("bitmap");
+    const ctx = canvas.getContext("2d");
 
-    // drawBlueCircle(context);
-    // drawRedSquare(context);
-    main(context);
+    const $imageLoader = document.getElementById('imageLoader');
+    $imageLoader.addEventListener('change', importImageToCanvas.bind(null, canvas, ctx), false);
+
+    const $renderImageButton = document.getElementById('render-gif-button')
+    $renderImageButton.addEventListener('click', render.bind(null, canvas, ctx))
+
+    const $addPointButton = document.getElementById('add-another-point-button')
+    $addPointButton.addEventListener('click', addPointInputRow)
 });
