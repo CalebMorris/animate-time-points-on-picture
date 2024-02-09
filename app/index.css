@@ -1,0 +1,41 @@
+#image-drop-zone {
+    min-width: 100px;
+    min-height: 100px;
+    padding: 4px;
+    width: 90%;
+    height: 90%;
+    margin: 5%;
+    cursor: pointer;
+    border-radius: 25px;
+}
+
+.image-drop-zone-non-dragging {
+    background-color: 8bb1b5;
+}
+
+.image-drop-zone-dragging {
+    background-color: b0ded8;
+}
+
+#image-drop {
+    text-align: center;
+    display: block;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+}
+
+#image-drop-text {
+    font-size: x-large;
+    font-weight: 500;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+    display: inline-block;
+    width: 100%;
+}

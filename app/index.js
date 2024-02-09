@@ -8,6 +8,10 @@ var startingPointPosition
 var ctx
 
 function importImageToCanvas(canvas, ctx, e) {
+    importImageFileToCanvas(canvas, ctx, e.target.files[0]);
+}
+
+function importImageFileToCanvas(canvas, ctx, imageFile) {
     var reader = new FileReader();
     reader.onload = function (event) {
         baseImage = new Image();
@@ -18,9 +22,10 @@ function importImageToCanvas(canvas, ctx, e) {
         }
         baseImage.src = event.target.result;
         document.getElementById('canvas-container').style.display = null
+        document.getElementById('file-input').style.display = 'none'
         enableInputPoints();
     }
-    reader.readAsDataURL(e.target.files[0]);
+    reader.readAsDataURL(imageFile);
 }
 
 function enableInputPoints() {
@@ -196,4 +201,10 @@ document.addEventListener("DOMContentLoaded", function (event) {
             renderAllPointsToCanvase(ctx)
         }
     });
+
+    setupImageDropHandler(document.getElementById('image-drop-zone'), (file) => {
+        console.log(`File dropped: ${file.name}`)
+        importImageFileToCanvas(canvas, ctx, file)
+    })
+    
 });
