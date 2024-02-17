@@ -1,3 +1,11 @@
+:root {
+    --color-neutral: #EEF4D4;
+    --color-primary: #92AFD7;
+    --color-secondary: #462255;
+    --color-secondary-up: #401154;
+    background-color: var(--color-neutral);
+}
+
 #image-drop-zone {
     min-width: 100px;
     min-height: 100px;
@@ -7,14 +15,15 @@
     margin: 5%;
     cursor: pointer;
     border-radius: 25px;
+    color: var(--color-neutral);
 }
 
 .image-drop-zone-non-dragging {
-    background-color: 8bb1b5;
+    background-color: var(--color-secondary);
 }
 
 .image-drop-zone-dragging {
-    background-color: b0ded8;
+    background-color: var(--color-secondary);
 }
 
 #image-drop {
@@ -35,7 +44,8 @@
     font-weight: 500;
 }
 
-[class^="icon-"], [class*=" icon-"] {
+[class^="icon-"],
+[class*=" icon-"] {
     display: inline-block;
     width: 100%;
 }

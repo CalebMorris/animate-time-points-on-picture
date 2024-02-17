@@ -48,13 +48,42 @@ function createLabel(message) {
     return $label
 }
 
+function openTab(tabName) {
+    var allTabItems = [...document.getElementsByClassName("tab-item")];
+    allTabItems.forEach(tabItem => {
+        tabItem.classList.add('tab-item-unselected')
+        tabItem.classList.remove('tab-item-selected')
+    })
+    var allTabContentItems = [...document.getElementsByClassName("tab-content")];
+    allTabContentItems.forEach(tabContentItem => {
+        tabContentItem.classList.add('tab-non-visible')
+        tabContentItem.classList.remove('tab-visible')
+    })
+    var allSelectingElements = [...document.querySelectorAll(`[data-tab=${tabName}]`)];
+    allSelectingElements.forEach(selectingItem => {
+        if (selectingItem.classList.contains('tab-item')) {
+            selectingItem.classList.remove('tab-item-unselected')
+            selectingItem.classList.add('tab-item-selected')
+        } else if (selectingItem.classList.contains('tab-content')) {
+            selectingItem.classList.remove('tab-non-visible')
+            selectingItem.classList.add('tab-visible')
+        }
+    })
+}
+
 function addPointInputRow() {
+    const $previewControlButton = document.createElement("button");
+    $previewControlButton.style.minHeight = '16px';
+    $previewControlButton.style.minWidth = '16px';
+    $previewControlButton.style.cursor = 'grab'
     const $previewControl = document.createElement("i");
     $previewControl.className = 'fa-solid fa-bullseye point-preview-control'
-    $previewControl.style.cursor = 'grab'
+    $previewControlButton.append($previewControl)
 
     const $removeRowButton = document.createElement('button')
     $removeRowButton.className = 'remove-row-button'
+    $removeRowButton.style.minHeight = '16px';
+    $removeRowButton.style.minWidth = '16px';
     $removeRowButton.innerHTML = '<i class="fa-solid fa-x"></i>'
 
     const inputs = [
@@ -67,7 +96,7 @@ function addPointInputRow() {
     const newRow = document.createElement("div");
     newRow.className = 'graph-display-point'
     newRow.append(
-        $previewControl,
+        $previewControlButton,
         ...inputs,
         $removeRowButton,
     )
@@ -75,11 +104,11 @@ function addPointInputRow() {
         .getElementById('point-inputs')
         .append(newRow)
 
-    $previewControl.addEventListener("mousedown", (event) => {
+    $previewControlButton.addEventListener("mousedown", (event) => {
         event.preventDefault();
         const currentPoint = getPoint(newRow)
         isControlling = true;
-        $control = $previewControl;
+        $control = $previewControlButton;
         startingMousePosition = [event.clientX, event.clientY]
         startingPointPosition = currentPoint
         drawPoint(ctx, currentPoint)
@@ -135,7 +164,6 @@ function render(canvas, ctx) {
     });
 
     gif.on("finished", function (blob) {
-        document.getElementById('canvas-container').style.display = 'none'
         $renderimg.src = URL.createObjectURL(blob);
     });
 
@@ -143,6 +171,7 @@ function render(canvas, ctx) {
 
     const $imageRenderContainer = document.getElementById('render-image-container');
     unhideRender($imageRenderContainer)
+    openTab('view')
 }
 
 function unhideRender($imageRenderContainer) {
@@ -206,5 +235,5 @@ document.addEventListener("DOMContentLoaded", function (event) {
         console.log(`File dropped: ${file.name}`)
         importImageFileToCanvas(canvas, ctx, file)
     })
-    
+
 });
