@@ -30,8 +30,7 @@ function importImageFileToCanvas(canvas, ctx, imageFile) {
 
 function enableInputPoints() {
     addPointInputRow();
-    document.getElementById('point-inputs').style.display = null
-    document.getElementById('render-gif-button').style.display = null
+    [...document.getElementsByClassName('hidden-before-image')].forEach(element => element.classList.remove('hidden-before-image'))
 }
 
 function createPointInput(xOrY) {
@@ -42,10 +41,14 @@ function createPointInput(xOrY) {
     return $pointInput
 }
 
-function createLabel(message) {
+function createLabel(message, mut) {
     const $label = document.createElement('label')
     $label.innerText = message
-    return $label
+    if (mut) {
+        return mut($label)
+    } else {
+        return $label
+    }
 }
 
 function openTab(tabName) {
@@ -71,6 +74,8 @@ function openTab(tabName) {
     })
 }
 
+let inputRowCount = 1;
+
 function addPointInputRow() {
     const $previewControlButton = document.createElement("button");
     $previewControlButton.style.minHeight = '16px';
@@ -86,23 +91,26 @@ function addPointInputRow() {
     $removeRowButton.style.minWidth = '16px';
     $removeRowButton.innerHTML = '<i class="fa-solid fa-x"></i>'
 
-    const inputs = [
+    const inputRowElements = [
+        createLabel(`${inputRowCount} `, function($element) {
+            $element.classList.add('input-row-position')
+            return $element;
+        }),
+        $previewControlButton,
         createLabel('Position X'),
         createPointInput('x'),
         createLabel('Position Y'),
         createPointInput('y'),
+        $removeRowButton,
     ]
 
     const newRow = document.createElement("div");
     newRow.className = 'graph-display-point'
-    newRow.append(
-        $previewControlButton,
-        ...inputs,
-        $removeRowButton,
-    )
+    newRow.append(...inputRowElements)
     document
         .getElementById('point-inputs')
         .append(newRow)
+    inputRowCount += 1;
 
     $previewControlButton.addEventListener("mousedown", (event) => {
         event.preventDefault();
@@ -117,6 +125,12 @@ function addPointInputRow() {
     });
     $removeRowButton.addEventListener('click', (event) => {
         $removeRowButton.parentElement.remove();
+        inputRowCount -= 1;
+        [...document.getElementsByClassName('input-row-position')].reduce((acc, $inputRowPosition) => {
+            $inputRowPosition.textContent = `${acc} `
+            return acc + 1
+        }, 1)
+        renderAllPointsToCanvase(ctx)
     })
 }
 

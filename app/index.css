@@ -18,6 +18,10 @@
     color: var(--color-neutral);
 }
 
+.hidden-before-image {
+    display: none;
+}
+
 .image-drop-zone-non-dragging {
     background-color: var(--color-secondary);
 }
