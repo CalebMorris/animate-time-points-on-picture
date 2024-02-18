@@ -217,8 +217,11 @@ document.addEventListener("DOMContentLoaded", function (event) {
     const $imageLoader = document.getElementById('imageLoader');
     $imageLoader.addEventListener('change', importImageToCanvas.bind(null, canvas, ctx), false);
 
-    const $renderImageButton = document.getElementById('render-gif-button')
-    $renderImageButton.addEventListener('click', render.bind(null, canvas, ctx))
+    const $renderImageButton = document.getElementById('render-gif-button');
+    $renderImageButton.addEventListener('click', render.bind(null, canvas, ctx));
+    [...document.querySelectorAll(`[data-tab=view].tab-item-unselected`)].forEach(($element) => {
+        $element.addEventListener('click', render.bind(null, canvas, ctx))
+    })
 
     const $addPointButton = document.getElementById('add-another-point-button')
     $addPointButton.addEventListener('click', addPointInputRow)
